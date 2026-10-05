@@ -1,16 +1,27 @@
-# React + Vite
+# SIGLU — Sistema de Gestión de Limpieza Urbana
+Bienvenidos a este proyecto de gestion de limpieza urbana.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Intengrantes: 
+- Montti Matias
+- Rayano Lisandro
 
-Currently, two official plugins are available:
+## ¿De qué trata?
+SIGLU nace de una necesidad: organizar mejor los pedidos de los vecinos y las tareas de limpieza urbana. La idea es reunir en una misma aplicación las solicitudes, las inspecciones, el mantenimiento de imbornales y desagües, y los pedidos de desagote de pozos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Buscamos que sea más fácil consultar qué trabajos están pendientes y llevar un seguimiento de lo que se va haciendo.
 
-## React Compiler
+## Funcionalidades
+- Inicio: muestra un resumen de los registros y accesos a cada sección.
+- Solicitudes: permite registrar, buscar y actualizar el estado de los pedidos.
+- Inspecciones: permite registrar actas de ejemplo y consultar su seguimiento.
+- Imbornales: permite registrar imbornales y desagües, indicando su limpieza y estado de conservación.
+- Desagotes: permite organizar pedidos con un camión, una fecha y un horario.
+- Página 404: aparece cuando se ingresa a una dirección que no existe.
+- Mantenimiento: muestra un aviso cuando se activa el modo de mantenimiento.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tecnologías utilizadas
+- React.
+- JavaScript y HTML/JSX.
+- Bootstrap (Diseño)
+- React Router (Navegacion entre paginas)
+-Vite
