@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar.jsx';
 import PageHeader from './components/PageHeader.jsx';
 import Seo from './components/Seo.jsx';
+import Login from './components/Login.jsx';
 import Inicio from './pages/Inicio.jsx';
 import Solicitudes from './pages/Solicitudes.jsx';
 import Inspecciones from './pages/Inspecciones.jsx';
@@ -13,10 +14,8 @@ import Mantenimiento from './pages/Mantenimiento.jsx';
 import { fechaHoy, registrarMovimiento, siguienteId } from './utils/helpers.js';
 import { validarTurno } from './utils/scheduling.js';
 
-// Cambiar a true reemplaza todos los módulos por la vista de mantenimiento.
 const MODO_MANTENIMIENTO = false;
 
-// Todos los ejemplos son ficticios: no representan actas, vecinos ni unidades reales.
 function crearDatosIniciales() {
   const fecha = fechaHoy();
   return {
@@ -133,10 +132,9 @@ function crearDatosIniciales() {
   };
 }
 
-// Esta lista se reutiliza en el menú, el encabezado y los metadatos de cada ruta.
 const PAGINAS = [
   {
-    ruta: '/',
+    ruta: '/inicio',
     nombre: 'Inicio',
     titulo: 'Gestión de Limpieza Urbana',
     descripcion:
@@ -185,7 +183,6 @@ const PAGINA_MANTENIMIENTO = {
   descripcion: 'El acceso a los módulos de SIGLU se encuentra temporalmente suspendido por tareas de mantenimiento.',
 };
 
-// Lectura del registro de práctica guardado en este navegador.
 const CLAVE = 'siglu-practica-v1';
 
 function leerDatos() {
@@ -211,14 +208,12 @@ function leerDatos() {
   }
 }
 
-
 export default function App() {
-  // Estado compartido de las páginas. Se utilizan los hooks básicos de React.
   const [inicio] = useState(leerDatos);
   const [datos, setDatos] = useState(inicio.datos);
   const [aviso, setAviso] = useState(inicio.aviso);
+  const location = useLocation();
 
-  // Guardado local: conserva los cambios cuando se recarga la página.
   useEffect(() => {
     if (!inicio.guardar) return;
     try {
@@ -230,7 +225,7 @@ export default function App() {
       );
     }
   }, [datos, inicio.guardar]);
-  const location = useLocation();
+
   const rutaActual = location.pathname.replace(/\/+$/, '') || '/';
   const pagina = PAGINAS.find((item) => item.ruta === rutaActual);
   const enMantenimiento = MODO_MANTENIMIENTO || rutaActual === '/mantenimiento';
@@ -243,6 +238,7 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  // --- MANTENEMOS TODAS TUS FUNCIONES EXACTAMENTE IGUAL ---
   function agregarSolicitud(formulario) {
     if (!formulario.ubicacion.trim() || !formulario.descripcion.trim()) {
       informar('Completá la ubicación y la descripción.', true);
@@ -476,37 +472,64 @@ export default function App() {
     informar('Copia de los datos de práctica descargada.');
   }
 
+  // Comprobamos si estamos en la ruta de Login para no mostrar el Navbar ni el Footer
+  const esRutaLogin = location.pathname === '/';
+
   return (
     <div className="bg-light min-vh-100">
       <Seo
-        titulo={contenidoPagina.titulo}
+        titulo={esRutaLogin ? "Login - SIGLU" : contenidoPagina.titulo}
         descripcion={contenidoPagina.descripcion}
         noIndex={!pagina || enMantenimiento}
       />
-      <header className="bg-dark bg-gradient text-white py-3 shadow-sm">
-        <div className="container d-flex flex-wrap justify-content-between align-items-center gap-3">
-          <div>
-            <p className="h3 fw-bold mb-0">SIGLU</p>
-            <p className="small mb-0 opacity-75">
-              Gestión de Limpieza Urbana · Proyecto de aprendizaje
-            </p>
-          </div>
-          {!enMantenimiento && <button
-            className="btn btn-outline-light btn-sm"
-            onClick={descargarCopia}
-          >
-            Descargar copia de datos
-          </button>}
-        </div>
-      </header>
-      {!enMantenimiento && <Navbar paginas={PAGINAS} />}
-      <main className="container py-4">
+      
+      {/* Ocultamos el header y navbar si estamos en la pantalla de Login */}
+      {!esRutaLogin && !enMantenimiento && (
+        <>
+          <header className="bg-primary bg-gradient text-white py-3 shadow-sm">
+            <div className="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+              
+              {/* CONTENEDOR FLEX PARA LOGO + TEXTO */}
+              <div className="d-flex align-items-center gap-3">
+                {/* Imagen del logo con fondo blanco para que resalte */}
+                <img 
+                  src="/logo-msmt.png" 
+                  alt="Ciudad San Miguel de Tucumán" 
+                  style={{ width: '50px' }} 
+                />
+                
+                {/* Textos */}
+                <div>
+                  <p className="h3 fw-bold mb-0">SIGLU</p>
+                  <p className="small mb-0 opacity-75">
+                    Gestión de Limpieza Urbana 
+                  </p>
+                </div>
+              </div>
+
+              <button
+                className="btn btn-outline-light btn-sm"
+                onClick={descargarCopia}
+              >
+                Descargar copia de datos
+              </button>
+            </div>
+          </header>
+          <Navbar paginas={PAGINAS} />
+        </>
+      )}
+
+      {/* Si estamos en Login, no aplicamos el padding ni el PageHeader */}
+      <main className={esRutaLogin ? "" : "container py-4"}>
         
-        <PageHeader
-          titulo={contenidoPagina.nombre}
-          descripcion={contenidoPagina.descripcion}
-        />
-        {mensaje && (
+        {!esRutaLogin && !enMantenimiento && (
+          <PageHeader
+            titulo={contenidoPagina.nombre}
+            descripcion={contenidoPagina.descripcion}
+          />
+        )}
+
+        {mensaje && !esRutaLogin && (
           <div
             className={`alert alert-${mensaje.error ? 'danger' : 'success'} d-flex justify-content-between align-items-start gap-2`}
             role="alert"
@@ -519,8 +542,14 @@ export default function App() {
             />
           </div>
         )}
+
         {MODO_MANTENIMIENTO ? <Mantenimiento /> : <Routes>
-          <Route path="/" element={<Inicio datos={datos} />} />
+          {/* NUEVA RUTA DE LOGIN */}
+          <Route path="/" element={<Login />} />
+          
+          {/* EL INICIO AHORA ES /inicio */}
+          <Route path="/inicio" element={<Inicio datos={datos} />} />
+          
           <Route
             path="/solicitudes"
             element={
@@ -566,9 +595,13 @@ export default function App() {
           <Route path="/mantenimiento" element={<Mantenimiento />} />
         </Routes>}
       </main>
-      <footer className="container pb-4 text-secondary small">
-        © 2026 Gestión de Limpieza Urbana. Todos los derechos reservados.
-      </footer>
+
+      {/* Ocultamos el footer si estamos en Login */}
+      {!esRutaLogin && (
+        <footer className="container pb-4 text-secondary small">
+          © 2026 Gestión de Limpieza Urbana. Todos los derechos reservados.
+        </footer>
+      )}
     </div>
   );
 }

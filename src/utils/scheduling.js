@@ -1,5 +1,3 @@
-// Dos servicios del mismo camión se superponen si comparten fecha y horario.
-// Los intervalos contiguos (08-09 y 09-10) pueden programarse.
 export function validarTurno(solicitudes, solicitudId, turno, camiones) {
   const camion = camiones.find((item) => item.id === turno.camionId);
   if (!camion || camion.estado !== 'Disponible')

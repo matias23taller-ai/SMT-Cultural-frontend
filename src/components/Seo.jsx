@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 
-// Metadatos básicos de una SPA. Se actualizan al navegar con React Router.
 export default function Seo({ titulo, descripcion, noIndex = false }) {
   useEffect(() => {
     document.title = `${titulo} | SIGLU`;
