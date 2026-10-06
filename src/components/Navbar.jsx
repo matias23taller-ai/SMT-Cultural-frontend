@@ -1,25 +1,21 @@
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function Navbar({ paginas }) {
+  if (!paginas) return null;
+
   return (
-    <div className="bg-white border-bottom">
-      <nav className="container py-3" aria-label="Módulos del sistema">
-        <ul className="nav nav-pills gap-2">
+    <nav className="navbar navbar-expand bg-dark navbar-dark mb-4">
+      <div className="container">
+        <ul className="navbar-nav d-flex flex-row gap-3">
           {paginas.map((pagina) => (
             <li className="nav-item" key={pagina.ruta}>
-              <NavLink
-                to={pagina.ruta}
-                end={pagina.ruta === '/'}
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? 'active' : ''}`
-                }
-              >
+              <Link className="nav-link" to={pagina.ruta}>
                 {pagina.nombre}
-              </NavLink>
+              </Link>
             </li>
           ))}
         </ul>
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }

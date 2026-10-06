@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Field from '../components/Field.jsx';
-import Badge from '../components/Badge.jsx';
+import Badge from '../components/Etiquetas.jsx';
 import { mostrarFecha } from '../utils/helpers.js';
 
 const LIMPIEZA = ['Sin revisar', 'Limpio', 'Obstruido'];

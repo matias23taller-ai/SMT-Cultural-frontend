@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Badge from '../components/Badge.jsx';
+import Badge from '../components/Etiquetas.jsx';
 
 export default function Inicio({ datos }) {
   const pendientes = datos.solicitudes.filter(
