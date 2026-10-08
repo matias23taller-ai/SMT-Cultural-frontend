@@ -1,10 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Solicitudes({ datos }) {
   const solicitudes = datos?.solicitudes || [];
   const imbornales = datos?.imbornales || [];
 
   const [historialId, setHistorialId] = useState('');
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    const temporizador = setTimeout(() => {
+      setCargando(false);
+    }, 1500);
+    return () => clearTimeout(temporizador);
+  }, []);
+
+  if (cargando) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center py-5">
+        <div className="spinner-border text-primary mb-3" role="status">
+          <h5 className="visually-hidden">Cargando...</h5>
+        </div>
+        <h5 className="text-muted">Cargando solicitudes...</h5>
+      </div>
+    );
+  }
+  
   const seleccionada = solicitudes.find((item) => item.id === historialId);
 
   return (
@@ -89,7 +109,6 @@ export default function Solicitudes({ datos }) {
               </div>
             </div>
 
-            {/* Tabla */}
             <div className="table-responsive">
               <table className="table align-middle">
                 <caption className="small text-muted">
