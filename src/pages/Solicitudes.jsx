@@ -1,39 +1,31 @@
-import { useState } from 'react';
-import Field from '../components/Field.jsx';
-import Badge from '../components/Badge.jsx';
-import { ESTADOS, PRIORIDADES, TIPOS, mostrarFecha } from '../utils/helpers.js';
+import { useState, useEffect } from 'react';
 
-const formularioInicial = () => ({
-  tipo: 'Limpieza',
-  ubicacion: '',
-  descripcion: '',
-  contacto: '',
-  prioridad: 'Media',
-  imbornalId: '',
-});
+export default function Solicitudes({ datos }) {
+  const solicitudes = datos?.solicitudes || [];
+  const imbornales = datos?.imbornales || [];
 
-export default function Solicitudes({ datos, agregar, cambiarEstado }) {
-  const [formulario, setFormulario] = useState(formularioInicial);
-  const [busqueda, setBusqueda] = useState('');
-  const [tipoFiltro, setTipoFiltro] = useState('Todos');
   const [historialId, setHistorialId] = useState('');
-  const campo = (nombre) => (valor) =>
-    setFormulario((actual) => ({ ...actual, [nombre]: valor }));
-  const filtradas = datos.solicitudes.filter(
-    (item) =>
-      (tipoFiltro === 'Todos' || item.tipo === tipoFiltro) &&
-      `${item.id} ${item.ubicacion} ${item.descripcion}`
-        .toLowerCase()
-        .includes(busqueda.toLowerCase()),
-  );
-  const seleccionada = datos.solicitudes.find(
-    (item) => item.id === historialId,
-  );
+  const [cargando, setCargando] = useState(true);
 
-  function guardar(evento) {
-    evento.preventDefault();
-    if (agregar(formulario)) setFormulario(formularioInicial());
+  useEffect(() => {
+    const temporizador = setTimeout(() => {
+      setCargando(false);
+    }, 1500);
+    return () => clearTimeout(temporizador);
+  }, []);
+
+  if (cargando) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center py-5">
+        <div className="spinner-border text-primary mb-3" role="status">
+          <h5 className="visually-hidden">Cargando...</h5>
+        </div>
+        <h5 className="text-muted">Cargando solicitudes...</h5>
+      </div>
+    );
   }
+  
+  const seleccionada = solicitudes.find((item) => item.id === historialId);
 
   return (
     <div className="row g-4">
@@ -41,100 +33,88 @@ export default function Solicitudes({ datos, agregar, cambiarEstado }) {
         <div className="card border-0 shadow-sm">
           <div className="card-body">
             <h2 className="h5 mb-3">Nueva solicitud</h2>
-            <form onSubmit={guardar}>
-              <Field
-                id="sol-tipo"
-                label="Tipo de servicio"
-                value={formulario.tipo}
-                onChange={campo('tipo')}
-                options={TIPOS}
-              />
-              <Field
-                id="sol-ubicacion"
-                label="Ubicación"
-                value={formulario.ubicacion}
-                onChange={campo('ubicacion')}
-                required
-                maxLength={160}
-                placeholder="Usá una ubicación de práctica"
-              />
-              <Field
-                id="sol-descripcion"
-                label="Descripción del trabajo"
-                type="textarea"
-                value={formulario.descripcion}
-                onChange={campo('descripcion')}
-                required
-                maxLength={1000}
-              />
-              <Field
-                id="sol-prioridad"
-                label="Prioridad"
-                value={formulario.prioridad}
-                onChange={campo('prioridad')}
-                options={PRIORIDADES}
-              />
-              <Field
-                id="sol-contacto"
-                label="Contacto de práctica (opcional)"
-                type="tel"
-                value={formulario.contacto}
-                onChange={campo('contacto')}
-                maxLength={30}
-              />
-              {formulario.tipo === 'Imbornal/desagüe' && (
-                <Field
-                  id="sol-imbornal"
-                  label="Instalación vinculada (opcional)"
-                  value={formulario.imbornalId}
-                  onChange={campo('imbornalId')}
-                  options={[
-                    { value: '', label: 'Sin vincular' },
-                    ...datos.imbornales.map((item) => ({
-                      value: item.id,
-                      label: `${item.id} · ${item.ubicacion}`,
-                    })),
-                  ]}
-                />
-              )}
+            
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="mb-3">
+                <label className="form-label fw-bold">Tipo de servicio</label>
+                <select className="form-select">
+                  <option>Limpieza</option>
+                  <option>Imbornal/desagüe</option>
+                  <option>Desagote</option>
+                  <option>Inspección</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-bold">Ubicación</label>
+                <input type="text" className="form-control" required maxLength={160} placeholder="Usá una ubicación de práctica" />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-bold">Descripción del trabajo</label>
+                <textarea className="form-control" required maxLength={1000} rows="3"></textarea>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-bold">Prioridad</label>
+                <select className="form-select">
+                  <option>Alta</option>
+                  <option>Media</option>
+                  <option>Baja</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-bold">Contacto de práctica (opcional)</label>
+                <input type="tel" className="form-control" maxLength={30} />
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label fw-bold">Instalación vinculada (opcional)</label>
+                <select className="form-select">
+                  <option value="">Sin vincular</option>
+                  {imbornales.map((item) => (
+                    <option key={item.id} value={item.id}>{item.id} · {item.ubicacion}</option>
+                  ))}
+                </select>
+              </div>
+
               <button className="btn btn-primary w-100" type="submit">
-                Guardar solicitud
+                Guardar solicitud 
               </button>
             </form>
           </div>
         </div>
       </div>
+
       <div className="col-12 col-xl-8">
         <div className="card border-0 shadow-sm">
           <div className="card-body">
             <h2 className="h5 mb-3">Registro de solicitudes</h2>
-            <div className="row g-2">
+            
+            <div className="row g-2 mb-3">
               <div className="col-md-7">
-                <Field
-                  id="sol-busqueda"
-                  label="Buscar solicitud"
-                  value={busqueda}
-                  onChange={setBusqueda}
-                  placeholder="Número, ubicación o descripción"
-                />
+                <label className="form-label fw-bold small">Buscar solicitud</label>
+                <input type="text" className="form-control" placeholder="Número, ubicación o descripción" />
               </div>
               <div className="col-md-5">
-                <Field
-                  id="sol-filtro"
-                  label="Filtrar por servicio"
-                  value={tipoFiltro}
-                  onChange={setTipoFiltro}
-                  options={['Todos', ...TIPOS]}
-                />
+                <label className="form-label fw-bold small">Filtrar por servicio</label>
+                <select className="form-select">
+                  <option>Todos</option>
+                  <option>Limpieza</option>
+                  <option>Imbornal/desagüe</option>
+                  <option>Desagote</option>
+                  <option>Inspección</option>
+                </select>
               </div>
             </div>
+
             <div className="table-responsive">
               <table className="table align-middle">
-                <caption>
-                  {filtradas.length} solicitudes encontradas. El estado mostrado
-                  corresponde al trabajo operativo.
+                <caption className="small text-muted">
+                  {solicitudes.length} solicitudes encontradas. El estado mostrado corresponde al trabajo operativo.
                 </caption>
-                <thead>
+                <thead className="table-light">
                   <tr>
                     <th>Número y servicio</th>
                     <th>Ubicación</th>
@@ -144,91 +124,73 @@ export default function Solicitudes({ datos, agregar, cambiarEstado }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtradas.map((item) => (
-                    <tr key={item.id}>
-                      <th scope="row">
-                        {item.id}
-                        <span className="d-block small fw-normal text-secondary">
-                          {item.tipo}
-                        </span>
-                      </th>
-                      <td className="text-break">
-                        {item.ubicacion}
-                        <span className="d-block small text-secondary">
-                          {mostrarFecha(item.fecha)}
-                        </span>
-                      </td>
-                      <td>
-                        <Badge texto={item.prioridad} />
-                      </td>
-                      <td>
-                        <select
-                          className="form-select form-select-sm"
-                          aria-label={`Estado operativo de ${item.id}`}
-                          value={item.estado}
-                          onChange={(evento) =>
-                            cambiarEstado(item.id, evento.target.value)
-                          }
-                        >
-                          {ESTADOS.map((estado) => (
-                            <option key={estado}>{estado}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() => setHistorialId(item.id)}
-                          aria-label={`Ver detalle de ${item.id}`}
-                        >
-                          Ver
-                        </button>
-                      </td>
+                  {solicitudes.length > 0 ? (
+                    solicitudes.map((item) => (
+                      <tr key={item.id}>
+                        <th scope="row">
+                          {item.id}
+                          <span className="d-block small fw-normal text-secondary">{item.tipo}</span>
+                        </th>
+                        <td className="text-break">
+                          {item.ubicacion}
+                          <span className="d-block small text-secondary">06/10/2026</span>
+                        </td>
+                        <td>
+                      
+                          <span className={`badge bg-${item.prioridad === 'Alta' ? 'danger' : item.prioridad === 'Baja' ? 'secondary' : 'warning text-dark'}`}>
+                            {item.prioridad || 'Media'}
+                          </span>
+                        </td>
+                        <td>
+                        
+                          <select className="form-select form-select-sm" defaultValue={item.estado}>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Programado">Programado</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Cancelado">Cancelado</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-outline-primary btn-sm"
+                            onClick={() => setHistorialId(item.id)}
+                          >
+                            Ver
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-muted">No hay solicitudes para mostrar.</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
-              {!filtradas.length && (
-                <p className="text-secondary">
-                  No hay coincidencias. Probá otra búsqueda.
-                </p>
-              )}
             </div>
+
             {seleccionada && (
-              <div className="border rounded p-3 mt-3">
+              <div className="border border-primary rounded p-3 mt-3 bg-light">
                 <div className="d-flex justify-content-between gap-2 mb-2">
-                  <h3 className="h6 mb-0">Detalle de {seleccionada.id}</h3>
-                  <button
-                    className="btn-close"
-                    aria-label="Cerrar detalle"
-                    onClick={() => setHistorialId('')}
-                  />
+                  <h3 className="h6 fw-bold mb-0 text-primary">Detalle de {seleccionada.id}</h3>
+                  <button className="btn-close" onClick={() => setHistorialId('')} />
                 </div>
-                <p className="text-break mb-2">{seleccionada.descripcion}</p>
+                <p className="text-break mb-2">{seleccionada.descripcion || 'Sin descripción detallada.'}</p>
+                
                 {seleccionada.imbornalId && (
-                  <p className="small mb-2">
-                    Instalación: {seleccionada.imbornalId}
+                  <p className="small mb-2 fw-semibold">
+                    Instalación vinculada: <span className="fw-normal">{seleccionada.imbornalId}</span>
                   </p>
                 )}
-                <p className="small text-secondary mb-2">
-                  Historial local de práctica:
-                </p>
-                {seleccionada.historial?.length ? (
-                  <ul className="small mb-0">
-                    {seleccionada.historial.map((paso, indice) => (
-                      <li key={indice}>
-                        {new Date(paso.fecha).toLocaleString('es-AR')} ·{' '}
-                        {paso.texto}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="small mb-0">
-                    Todavía no hay movimientos registrados.
-                  </p>
-                )}
+                
+                <p className="small text-secondary mb-2 fw-bold">Historial local de práctica:</p>
+                <ul className="small mb-0 text-muted">
+                  <li>06/10/2026, 10:00:00 · Solicitud registrada en el prototipo.</li>
+                  <li>06/10/2026, 10:05:00 · Estado operativo: {seleccionada.estado}.</li>
+                </ul>
               </div>
             )}
+
           </div>
         </div>
       </div>
