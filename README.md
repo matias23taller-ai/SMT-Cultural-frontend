@@ -24,4 +24,4 @@ Buscamos que sea más fácil consultar qué trabajos están pendientes y llevar 
 - JavaScript y HTML/JSX.
 - Bootstrap (Diseño)
 - React Router (Navegacion entre paginas)
--Vite
+- Vite
